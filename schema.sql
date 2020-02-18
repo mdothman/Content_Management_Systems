@@ -29,3 +29,12 @@ department_id INT FOREIGN KEY;
 
 PRIMARY KEY (id);
 )
+
+CREATE TABLE department
+(
+    id INT NOT NULL AUTO_INCREMENT;
+
+    name VARCHAR(30)
+
+    PRIMARY KEY (id);
+)
