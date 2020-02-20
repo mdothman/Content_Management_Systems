@@ -58,7 +58,7 @@ function CMS() {
                     break;
 
                 case "Add a role":
-                    addARole();
+                    getRoletInfo()
                     break;
 
                 case "Add an employee":
@@ -93,12 +93,146 @@ function getDepartmentInfo() {
         })
         .then(function(answer) {
             let name = answer.name
-            corp.addDepartment(
-                "name", name.toString(),
-                function(result) {
-                    console.log(result)
-                    connection.end()
-                });
+            connection.query(`INSERT INTO department(name) VALUES ("${name}")`);
+            console.log(`${name} was added as a department`);
             CMS();
         })
+};
+
+function getRoletInfo() {
+    connection.query('SELECT * FROM department', function(err, results) {
+        if (err) throw err;
+        inquirer.prompt([{
+                    name: "department",
+                    type: "rawlist",
+                    choices: function() {
+                        var choiceArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            choiceArray.push(results[i].name);
+                        }
+                        return choiceArray;
+                    },
+                    message: "What department will you assign this role to?"
+                }, {
+                    name: "role",
+                    type: "input",
+                    message: "What is the name of the role you would like to add?",
+                    validate: function(role) {
+                        if (role.length !== 0) {
+                            return true;
+                        }
+                        return false;
+                    }
+
+                }, {
+                    name: "salary",
+                    type: "input",
+                    message: "What will be the monthly salary for this role?",
+                    validate: function(value) {
+                        if (isNaN(value) === false) {
+                            return true;
+                        }
+                        return false;
+                    }
+
+                }
+
+            ])
+            .then(function(answer) {
+                let role = answer.role;
+                let salary = answer.salary;
+                let chosenDepartment;
+                for (var i = 0; i < results.length; i++) {
+                    if (results[i].name === answer.department) {
+                        chosenDepartment = results[i];
+                    }
+                }
+                connection.query(
+                    "INSERT INTO role SET ?", {
+                        title: role,
+                        salary: salary,
+                        department_id: chosenDepartment.id || 0
+                    },
+                    function(error) {
+                        if (error) throw err;
+                        console.log("Role was successfully added");
+                        CMS();
+                    })
+
+
+                // connection.query(`INSERT INTO department(name) VALUES ("${name}")`);
+                // console.log(`${name} was added as a department`);
+
+            })
+    })
+
+}
+
+function getEmployeeInfo() {
+    connection.query('SELECT * FROM role', function(err, results) {
+        if (err) throw err;
+        inquirer.prompt([{
+                    name: "role",
+                    type: "rawlist",
+                    choices: function() {
+                        var choiceArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            choiceArray.push(results[i].name);
+                        }
+                        return choiceArray;
+                    },
+                    message: "What role will you assign this person to?"
+                }, {
+                    name: "first",
+                    type: "input",
+                    message: "What is the name of the role you would like to add?",
+                    validate: function(name) {
+                        if (name.length !== 0) {
+                            return true;
+                        }
+                        return false;
+                    }
+
+                }, {
+                    name: "last",
+                    type: "input",
+                    message: "What will be the monthly salary for this role?",
+                    validate: function(name) {
+                        if (name.length !== 0) {
+                            return true;
+                        }
+                        return false;
+                    }
+
+                }
+
+            ])
+            .then(function(answer) {
+                let last = answer.last;
+                let first = answer.first;
+                let chosenDepartment;
+                for (var i = 0; i < results.length; i++) {
+                    if (results[i].name === answer.department) {
+                        chosenDepartment = results[i];
+                    }
+                }
+                connection.query(
+                    "INSERT INTO role SET ?", {
+                        title: role,
+                        salary: salary,
+                        department_id: chosenDepartment.id || 0
+                    },
+                    function(error) {
+                        if (error) throw err;
+                        console.log("Role was successfully added");
+                        CMS();
+                    })
+
+
+                // connection.query(`INSERT INTO department(name) VALUES ("${name}")`);
+                // console.log(`${name} was added as a department`);
+
+            })
+    })
+
 }
