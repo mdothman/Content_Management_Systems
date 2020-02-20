@@ -1,8 +1,8 @@
 drop database if exists company_db;
 
-CREATE DATABASE company_db;
+CREATE DATABASE corporation_db;
 
-USE company_db;
+USE corporation_db;
 
 CREATE TABLE department
 (

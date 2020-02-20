@@ -1,6 +1,6 @@
 const orm = require("../config/orm.js");
 
-const company = {
+const corporation = {
     viewAllDepartments: function(cB) {
         orm.all("department", function(result) {
             cB(result)
@@ -37,4 +37,4 @@ const company = {
 
 
 }
-module.exports = company
+module.exports = corporation

@@ -1,10 +1,18 @@
 const inquirer = require("inquirer");
-const models = require("./models/company.js");
+const corp = require("./models/company.js");
+const connection = require("./config/connection.js")
+
+
 
 connection.connect(function(err) {
-    if (err) throw err;
-    CMS();
+    if (err) {
+        console.error("error connecting: " + err.stack);
+        return;
+    }
+    console.log("connected as id " + connection.threadId);
+    CMS()
 });
+
 
 function CMS() {
     inquirer
@@ -25,19 +33,28 @@ function CMS() {
         .then(function(answer) {
             switch (answer.foreman) {
                 case "View all departments":
-                    viewAllDepartments();
+                    corp.viewAllDepartments(function(data) {
+                        console.log(data);
+                        CMS();
+                    });
                     break;
 
                 case "View all roles":
-                    viewAllRoles();
+                    corp.viewAllRoles(function(data) {
+                        console.log(data);
+                        CMS();
+                    });
                     break;
 
                 case "View all employees":
-                    viewAllEmployees();
+                    corp.viewAllEmployees(function(data) {
+                        console.log(data);
+                        CMS();
+                    });
                     break;
 
                 case "Add a department":
-                    addADepartment();
+                    getDepartmentInfo()
                     break;
 
                 case "Add a role":
@@ -51,10 +68,37 @@ function CMS() {
                 case "Update employee role":
                     updateEmployeeRole();
                     break;
+                default:
+                    connection.end()
 
 
             }
 
 
+        })
+}
+
+function getDepartmentInfo() {
+    inquirer.prompt({
+            name: "name",
+            type: "input",
+            message: "What is the name of the department you would like to add?",
+            validate: function(department) {
+                if (department.length !== 0) {
+                    return true;
+                }
+                return false;
+            }
+
+        })
+        .then(function(answer) {
+            let name = answer.name
+            corp.addDepartment(
+                "name", name.toString(),
+                function(result) {
+                    console.log(result)
+                    connection.end()
+                });
+            CMS();
         })
 }
