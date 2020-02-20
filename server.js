@@ -62,7 +62,7 @@ function CMS() {
                     break;
 
                 case "Add an employee":
-                    addAnEmployee();
+                    getEmployeeInfo();
                     break;
 
                 case "Update employee role":
@@ -177,7 +177,7 @@ function getEmployeeInfo() {
                     choices: function() {
                         var choiceArray = [];
                         for (var i = 0; i < results.length; i++) {
-                            choiceArray.push(results[i].name);
+                            choiceArray.push(results[i].title);
                         }
                         return choiceArray;
                     },
@@ -185,7 +185,7 @@ function getEmployeeInfo() {
                 }, {
                     name: "first",
                     type: "input",
-                    message: "What is the name of the role you would like to add?",
+                    message: "What is the first name?",
                     validate: function(name) {
                         if (name.length !== 0) {
                             return true;
@@ -196,7 +196,7 @@ function getEmployeeInfo() {
                 }, {
                     name: "last",
                     type: "input",
-                    message: "What will be the monthly salary for this role?",
+                    message: "What is the last name?",
                     validate: function(name) {
                         if (name.length !== 0) {
                             return true;
@@ -210,21 +210,22 @@ function getEmployeeInfo() {
             .then(function(answer) {
                 let last = answer.last;
                 let first = answer.first;
-                let chosenDepartment;
+                let chosenRole;
                 for (var i = 0; i < results.length; i++) {
-                    if (results[i].name === answer.department) {
-                        chosenDepartment = results[i];
+                    if (results[i].title === answer.role) {
+                        chosenRole = results[i];
                     }
                 }
                 connection.query(
-                    "INSERT INTO role SET ?", {
-                        title: role,
-                        salary: salary,
-                        department_id: chosenDepartment.id || 0
+                    "INSERT INTO employee SET ?", {
+                        first_name: first,
+                        last_name: last,
+                        role_id: chosenRole.id || 0,
+
                     },
                     function(error) {
                         if (error) throw err;
-                        console.log("Role was successfully added");
+                        console.log("Employee was successfully added");
                         CMS();
                     })
 
@@ -236,3 +237,23 @@ function getEmployeeInfo() {
     })
 
 }
+
+function updateRole() {
+    connection.query(
+            "SELECT * FROM employee",
+            function(err, results) {
+                if (err) throw err;
+                inquirer.prompt([{
+                        name: "role",
+                        type: "rawlist",
+                        choices: function() {
+                            var choiceArray = [];
+                            for (var i = 0; i < results.length; i++) {
+
+                                choiceArray.push(results[i].first_name);
+                            }
+                            return choiceArray;
+                        },
+                        message: "What role will you assign this person to?"
+                    }, )
+                }
